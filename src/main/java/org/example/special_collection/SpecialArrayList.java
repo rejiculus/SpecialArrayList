@@ -6,7 +6,8 @@ import org.example.special_collection.exception.IndexOutOfRangeException;
 import org.example.special_collection.exception.NullParamException;
 
 import java.util.Arrays;
-import java.util.Collection;
+import java.util.Comparator;
+import java.util.Optional;
 
 /**
  * не хранит null
@@ -24,16 +25,16 @@ public class SpecialArrayList<T> implements Comparable<SpecialArrayList<T>> {
     }
 
     public SpecialArrayList(int capacity) {
-        if(capacity<=0)
+        if (capacity <= 0)
             throw new CapacityException(capacity);
 
         arr = createArr(capacity);
     }
 
     public SpecialArrayList(int capacity, Double expansionCoeff) {
-        if(capacity<=0)
+        if (capacity <= 0)
             throw new CapacityException(capacity);
-        if(expansionCoeff<=1.0 || expansionCoeff>HIGHEST_EXPANSION_COEFFICIENT)
+        if (expansionCoeff <= 1.0 || expansionCoeff > HIGHEST_EXPANSION_COEFFICIENT)
             throw new ExpansionCoefficientException(expansionCoeff, HIGHEST_EXPANSION_COEFFICIENT);
 
         arr = createArr(capacity);
@@ -61,7 +62,6 @@ public class SpecialArrayList<T> implements Comparable<SpecialArrayList<T>> {
         arr[size++] = obj;
     }
 
-    //todo стоит ли ограничивать справа, или лучше расширять? А может расширять только на +1?
     public void add(int index, T obj) {
         if (index < 0 || index >= arr.length)
             throw new IndexOutOfRangeException(arr.length, index);
@@ -90,7 +90,7 @@ public class SpecialArrayList<T> implements Comparable<SpecialArrayList<T>> {
         System.arraycopy(arr, index + 1, arr, index, size - index - 1);
         arr[--size] = null;
     }
-    
+
     public void clean() {
         for (int i = 0; i < size; i++) {
             arr[i] = null;
@@ -98,8 +98,16 @@ public class SpecialArrayList<T> implements Comparable<SpecialArrayList<T>> {
         size = 0;
     }
 
-    //todo sort
-    //todo sort(Comparator)
+    public void sort() {
+        if (!(arr[0] instanceof Comparable))
+            throw new RuntimeException("Not comparable!");
+
+        quicksort(this.arr, 0, size - 1, Optional.empty());
+    }
+
+    public void sort(Comparator<T> comparator) {
+        quicksort(this.arr, 0, size - 1, Optional.of(comparator));
+    }
 
     public void replace(int index, T obj) {
         if (index < 0 || index >= arr.length)
@@ -128,10 +136,10 @@ public class SpecialArrayList<T> implements Comparable<SpecialArrayList<T>> {
         size += externalArr.length;
     }
 
-    public void trim(){
+    public void trim() {
         T[] newArr = createArr(size);
-        System.arraycopy(this.arr,0,newArr,0,newArr.length);
-        this.arr= newArr;
+        System.arraycopy(this.arr, 0, newArr, 0, newArr.length);
+        this.arr = newArr;
     }
 
     public T[] toArray() {
@@ -141,6 +149,78 @@ public class SpecialArrayList<T> implements Comparable<SpecialArrayList<T>> {
     }
 
     //private methods
+    private void quicksort(T[] arr, int lowest, int highest, Optional<Comparator<T>> optionalComparator) {
+        if (lowest >= highest)
+            return;
+        if (lowest < 0)
+            throw new IndexOutOfRangeException(lowest);
+        if (highest >= arr.length)
+            throw new IndexOutOfRangeException(arr.length, highest);
+
+        int pivot;
+
+        //индекс елемента относительно которого сортировался массив
+        //обльшие элементы чем указанный находятся справа, меньшие слева
+        if (optionalComparator.isEmpty()) {
+            pivot = partition(arr, lowest, highest);
+        } else {
+            pivot = partition(arr, lowest, highest, optionalComparator.get());
+        }
+
+        //Сортируем обе части
+        quicksort(arr, lowest, pivot - 1, optionalComparator);
+        quicksort(arr, pivot + 1, highest, optionalComparator);
+
+    }
+
+    private int partition(T[] arr, int lowest, int highest, Comparator<T> c) {
+        T pivot = arr[highest];
+
+        int smallerSideEnd = lowest;
+
+        for (int i = lowest; i < highest; i++) {
+            if (c.compare(pivot, arr[i]) >= 0) {
+                swap(i, smallerSideEnd++);
+            }
+        }
+
+        //меняем местами елемент, который находится после половины с елементами меньшими чем pivot, и pivot елемент
+        swap(smallerSideEnd, highest);
+
+        //возвращаем pivot елемент
+        //гарантированно что слева от этого элемента находятся элементы мельние чем pivot, а справа - бОльшие
+        return smallerSideEnd;
+    }
+
+    private int partition(T[] arr, int lowest, int highest) {
+        if (!(arr[0] instanceof Comparable))
+            throw new RuntimeException("Not comparable!");
+
+        Comparable<T> pivot = (Comparable<T>) arr[highest];
+
+        int smallerSideEnd = lowest;
+
+        for (int i = lowest; i < highest - 1; i++) {
+            if (pivot.compareTo(arr[i]) >= 0) {
+                swap(i, smallerSideEnd++);
+
+            }
+        }
+
+        //меняем местами елемент, который находится после половины с елементами меньшими чем pivot, и pivot елемент
+        swap(smallerSideEnd, highest);
+
+        //возвращаем pivot елемент
+        //гарантированно что слева от этого элемента находятся элементы мельние чем pivot, а справа - бОльшие
+        return smallerSideEnd;
+    }
+
+    private void swap(int e1, int e2) {
+        T temp = arr[e1];
+        arr[e1] = arr[e2];
+        arr[e2] = temp;
+    }
+
     private void expanseArray() {
         T[] newArr = createArr((int) (arr.length * expansionCoeff) + 1);
         System.arraycopy(arr, 0, newArr, 0, arr.length);
@@ -163,38 +243,38 @@ public class SpecialArrayList<T> implements Comparable<SpecialArrayList<T>> {
         return (T[]) new Object[capacity];
     }
 
-    private T[] prepareReceivingArray(T[] arr){
+    private T[] prepareReceivingArray(T[] arr) {
         T[] solidArray = removeGaps(arr);
         return trim(solidArray);
     }
 
-    private T[] trim(T[] solidArr){
-        int newSize=solidArr.length;
-        for(int i=0;i<solidArr.length;i++)
-            if(solidArr[i]==null)
-                newSize=i;
+    private T[] trim(T[] solidArr) {
+        int newSize = solidArr.length;
+        for (int i = 0; i < solidArr.length; i++)
+            if (solidArr[i] == null)
+                newSize = i;
 
         T[] newArr = createArr(newSize);
-        System.arraycopy(solidArr,0,newArr,0,newArr.length);
+        System.arraycopy(solidArr, 0, newArr, 0, newArr.length);
 
         return newArr;
     }
 
-    private T[] removeGaps(T[] arr){
+    private T[] removeGaps(T[] arr) {
         T[] newArr = createArr(arr.length);
-        System.arraycopy(arr,0,newArr,0,newArr.length);
+        System.arraycopy(arr, 0, newArr, 0, newArr.length);
 
-        int actuallySize=0;
-        for(int i=0;i<newArr.length;i++){
-            if(newArr[i]!=null)
-                newArr[actuallySize++]=newArr[i];
+        int actuallySize = 0;
+        for (int i = 0; i < newArr.length; i++) {
+            if (newArr[i] != null)
+                newArr[actuallySize++] = newArr[i];
         }
         return newArr;
     }
 
     @Override
     public int compareTo(SpecialArrayList<T> o) {
-        return size - o.getSize();  //fixme придумать лучший способ
+        return size - o.getSize();  //todo придумать лучший способ
     }
 
     @Override
