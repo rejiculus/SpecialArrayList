@@ -1,8 +1,6 @@
 package org.example.special_collection;
 
-import org.example.special_collection.exception.CapacityException;
-import org.example.special_collection.exception.ExpansionCoefficientException;
-import org.example.special_collection.exception.NullParamException;
+import org.example.special_collection.exception.*;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
@@ -130,38 +128,275 @@ class SpecialArrayListTest {
     }
 
     //add by index
-//    public void addByIndexTest();
-//    public void addByIndexNullTest();
-//    public void addByIndexOutOfBoundTest();
+    @Test
+    public void addByIndexTest() throws NoSuchFieldException, IllegalAccessException {
+        Integer[] inp = new Integer[]{1,2,3,4,5,6,7};
+        SpecialArrayList<Integer> arr = new SpecialArrayList<>(inp);
+
+        arr.add(0,42);
+
+        Object[] insideArr = getInsideArr(arr);
+        Integer[] exp = new Integer[]{42,1,2,3,4,5,6,7};
+        for(int i=0;i<exp.length;i++){
+            assertEquals(exp[i],insideArr[i]);
+        }
+    }
+    @Test
+    public void addByIndex2Test() throws NoSuchFieldException, IllegalAccessException {
+        Integer[] inp = new Integer[]{1,2,3,4,5,6,7};
+        SpecialArrayList<Integer> arr = new SpecialArrayList<>(inp);
+
+        arr.add(4,42);
+
+        Object[] insideArr = getInsideArr(arr);
+        Integer[] exp = new Integer[]{1,2,3,4,42,5,6,7};
+        for(int i=0;i<exp.length;i++){
+            assertEquals(exp[i],insideArr[i]);
+        }
+    }
+    @Test
+    public void addByIndexNullTest() throws NoSuchFieldException, IllegalAccessException {
+        Integer[] inp = new Integer[]{1,2,3,4,5,6,7};
+        SpecialArrayList<Integer> arr = new SpecialArrayList<>(inp);
+
+        Assertions.assertThrows(NullParamException.class, ()-> arr.add(4,null));
+    }
+    @Test
+    public void addByIndexOutOfBoundTest(){
+        Integer[] inp = new Integer[]{1,2,3,4,5,6,7};
+        SpecialArrayList<Integer> arr = new SpecialArrayList<>(inp);
+
+        for(int i=-10;i<10;i++){
+            if(i<0 || i>=inp.length) {
+                int finalI = i;
+                Assertions.assertThrows(IndexOutOfRangeException.class, ()-> arr.add(finalI,99));
+            }
+        }
+    }
 
     //get
-//    public void getTest();
-//    public void getOutOfBoundTest();
+    @Test
+    public void getTest(){
+        Integer[] inp = new Integer[]{1,2,3,4,5,6,7,8,9,0};
+        SpecialArrayList<Integer> arr = new SpecialArrayList<>(inp);
+
+        for(int i=0;i<10;i++){
+            assertEquals(inp[i], arr.get(i));
+        }
+    }
+    @Test
+    public void getOutOfBoundTest(){
+        Integer[] inp = new Integer[]{1,2,3,4,5,6,7,8,9,0};
+        SpecialArrayList<Integer> arr = new SpecialArrayList<>(inp);
+
+        for(int i=-10;i<15;i++){
+            if(i<0 || i>=inp.length){
+                int index=i;
+                Assertions.assertThrows(IndexOutOfRangeException.class, ()-> arr.get(index));
+            }
+        }
+    }
 
     //remove
-//    public void removeFirstTest();
-//    public void removeLastTest();
-//    public void removeMiddleTest();
-//    public void removeOutOfBoundTest();
+    @Test
+    public void removeFirstTest() throws NoSuchFieldException, IllegalAccessException {
+        Integer[] inp = new Integer[]{1,2,3,4,5,6,7};
+        SpecialArrayList<Integer> arr = new SpecialArrayList<>(inp);
+
+        arr.remove(0);
+
+        Object[] insideArr = getInsideArr(arr);
+        Integer[] exp = new Integer[]{2,3,4,5,6,7};
+        for(int i=0;i<exp.length;i++){
+            assertEquals(exp[i],insideArr[i]);
+        }
+    }
+    @Test
+    public void removeLastTest() throws NoSuchFieldException, IllegalAccessException {
+        Integer[] inp = new Integer[]{1,2,3,4,5,6,7};
+        SpecialArrayList<Integer> arr = new SpecialArrayList<>(inp);
+
+        arr.remove(inp.length-1);
+
+        Object[] insideArr = getInsideArr(arr);
+        Integer[] exp = new Integer[]{1,2,3,4,5,6};
+        for(int i=0;i<exp.length;i++){
+            assertEquals(exp[i],insideArr[i]);
+        }
+    }
+    @Test
+    public void removeMiddleTest() throws NoSuchFieldException, IllegalAccessException {
+        Integer[] inp = new Integer[]{1,2,3,4,5,6,7};
+        SpecialArrayList<Integer> arr = new SpecialArrayList<>(inp);
+
+        arr.remove(2);
+
+        Object[] insideArr = getInsideArr(arr);
+        Integer[] exp = new Integer[]{1,2,4,5,6,7};
+        for(int i=0;i<exp.length;i++){
+            assertEquals(exp[i],insideArr[i]);
+        }
+    }
+    @Test
+    public void removeOutOfBoundTest(){
+        Integer[] inp = new Integer[]{1,2,3,4,5,6,7,8,9,0};
+        SpecialArrayList<Integer> arr = new SpecialArrayList<>(inp);
+
+        for(int i=-10;i<15;i++){
+            if(i<0 || i>=inp.length){
+                int index=i;
+                Assertions.assertThrows(IndexOutOfRangeException.class, ()-> arr.remove(index));
+            }
+        }
+
+    }
 
     //clean
-//    public void cleanTest();
+    @Test
+    public void cleanTest() throws NoSuchFieldException, IllegalAccessException {
+        Integer[] inp = new Integer[]{1,2,3,4,5,6,7,8,9,0};
+        SpecialArrayList<Integer> arr = new SpecialArrayList<>(inp);
+
+        arr.clean();
+
+        Object[] insideArr = getInsideArr(arr);
+        assertEquals(inp.length, insideArr.length);
+        assertArrayEquals(new Integer[inp.length], insideArr);
+    }
 
     //sort comparable
-//    public void sortComparableTest();
-//    public void sortNotComparableTest();
+    @Test
+    public void sortComparableTest(){
+        Random random = new Random();
+        int capacity = 100;
+        ArrayList<Integer> exp = new ArrayList<>(capacity);
+        SpecialArrayList<Integer> arr = new SpecialArrayList<>(capacity);
+
+        for(int i=0;i<capacity;i++){
+            int val =random.nextInt(1000)-500;
+            arr.add(val);
+            exp.add(val);
+        }
+        arr.sort();
+        exp.sort((x,y)->x-y);
+
+        for(int i=0;i<capacity;i++){
+            assertEquals(exp.get(i), arr.get(i));
+        }
+    }
+    @Test
+    public void sortNotComparableTest(){
+        class TestObj{}
+        SpecialArrayList<TestObj> arr = new SpecialArrayList<>(10);
+        for(int i=0;i<10;i++){
+            arr.add(new TestObj());
+        }
+
+        Assertions.assertThrows(NotComparableException.class, arr::sort);
+    }
 
     //sort comparator
-//    public void sortComparatorTest();
-//    public void sortComparatorNullTest();
+    @Test
+    public void sortComparatorTest(){
+        Random random = new Random();
+        int capacity = 100;
+        ArrayList<Integer> exp = new ArrayList<>(capacity);
+        SpecialArrayList<Integer> arr = new SpecialArrayList<>(capacity);
+
+        for(int i=0;i<capacity;i++){
+            int val =random.nextInt(1000)-500;
+            arr.add(val);
+            exp.add(val);
+        }
+        arr.sort((x,y)->x-y);
+        exp.sort((x,y)->x-y);
+
+        for(int i=0;i<capacity;i++){
+            assertEquals(exp.get(i), arr.get(i));
+        }
+    }
+    @Test
+    public void sortComparatorNullTest(){
+        Random random = new Random();
+        int capacity = 100;
+        SpecialArrayList<Integer> arr = new SpecialArrayList<>(capacity);
+
+        for(int i=0;i<capacity;i++){
+            int val =random.nextInt(1000)-500;
+            arr.add(val);
+        }
+        Assertions.assertThrows(NullParamException.class, ()-> arr.sort(null));
+
+    }
 
     //replace
-//    public void replaceTest();
-//    public void replaceNullTest();
-//    public void replaceOutOfBoundTest();
+    @Test
+    public void replaceTest(){
+        Random random = new Random();
+        int capacity = 100;
+        ArrayList<Integer> exp = new ArrayList<>(capacity);
+        SpecialArrayList<Integer> arr = new SpecialArrayList<>(capacity);
+
+        for(int i=0;i<capacity;i++){
+            int val =random.nextInt(1000)-500;
+            arr.add(val);
+            exp.add(val);
+        }
+
+        arr.replace(0,42);
+        exp.set(0,42);
+
+        assertArrayEquals(arr.toArray(new Integer[0]), exp.toArray(new Integer[0]));
+    }
+    @Test
+    public void replaceNullTest(){
+        Random random = new Random();
+        int capacity = 100;
+        SpecialArrayList<Integer> arr = new SpecialArrayList<>(capacity);
+
+        Assertions.assertThrows(NullParamException.class, ()-> arr.replace(1, null));
+
+    }
+    @Test
+    public void replaceOutOfBoundTest(){
+        Random random = new Random();
+        int capacity = 100;
+        SpecialArrayList<Integer> arr = new SpecialArrayList<>(capacity);
+
+        for(int i=0;i<capacity;i++){
+            arr.add(random.nextInt(1000));
+        }
+
+        for(int i=-10;i<capacity+10;i++){
+            if(i<0 || i>=capacity){
+                int val = i;
+                Assertions.assertThrows(IndexOutOfRangeException.class, ()-> arr.replace(val, 42));
+            } else {
+                arr.replace(i, 42);
+            }
+        }
+
+        for(int i=0;i<capacity;i++){
+            assertEquals(42, arr.get(i));
+        }
+    }
 
     //getSize
-//    public void getSize();
+    @Test
+    public void getSize(){
+        Random random = new Random();
+        int capacity = 100;
+        SpecialArrayList<Integer> arr = new SpecialArrayList<>(capacity);
+
+        assertEquals(0, arr.getSize());
+
+        for(int i=0;i<capacity;i++){
+            arr.add(random.nextInt(1000));
+        }
+        assertEquals(capacity,arr.getSize());
+        arr.remove(42);
+        assertEquals(capacity-1, arr.getSize());
+    }
 
     //others
     //addAll
