@@ -5,11 +5,11 @@ import org.example.special_collection.exception.ExpansionCoefficientException;
 import org.example.special_collection.exception.IndexOutOfRangeException;
 import org.example.special_collection.exception.NullParamException;
 
-import java.util.Arrays;
-import java.util.Comparator;
-import java.util.Optional;
+import java.util.*;
 
 /**
+ * Собственная реализация ArrayLis
+ * хранит значения указанного типа
  * не хранит null
  *
  * @param <T>
@@ -20,10 +20,22 @@ public class SpecialArrayList<T> implements Comparable<SpecialArrayList<T>> {
     private T[] arr;
     private int size = 0;
 
+    /**
+     * Конструктор по умолчанию
+     * изначальный размер массива задается равным 10
+     * по умолчанию, при превышении указанного размера
+     * массив увеличивается в 1.5 раза
+     */
     public SpecialArrayList() {
         arr = createArr(10);
     }
 
+    /**
+     * Конструктор с указанием размера по умолчанию
+     * при превышении указанного размера - массив увеличивается в 1.5 раза
+     *
+     * @param capacity - размер создаваемого массива
+     */
     public SpecialArrayList(int capacity) {
         if (capacity <= 0)
             throw new CapacityException(capacity);
@@ -31,6 +43,15 @@ public class SpecialArrayList<T> implements Comparable<SpecialArrayList<T>> {
         arr = createArr(capacity);
     }
 
+    /**
+     * Конструктор с указанием размера по умолчанию и коэффициента расширения
+     * при превышении указанного размера - массив
+     * увеличивается в соответствии с указанным коэффициентом
+     *
+     * @param capacity       - размер создаваемого массива
+     * @param expansionCoeff - коэффициент расширения. Должен быть больше 1.0, но
+     *                       не больше чем HIGHEST_EXPANSION_COEFFICIENT
+     */
     public SpecialArrayList(int capacity, Double expansionCoeff) {
         if (capacity <= 0)
             throw new CapacityException(capacity);
@@ -41,6 +62,14 @@ public class SpecialArrayList<T> implements Comparable<SpecialArrayList<T>> {
         this.expansionCoeff = expansionCoeff;
     }
 
+    /**
+     * Конструктор с заданным массивом
+     * создает копию указанного массива
+     * при этом размер массива совпадает с размером исходного массива
+     * при превышении размера - массив расширяется в 1.5 раза
+     *
+     * @param arr - исходный массив
+     */
     public SpecialArrayList(T[] arr) {
         if (arr == null)
             throw new NullParamException();
@@ -52,6 +81,26 @@ public class SpecialArrayList<T> implements Comparable<SpecialArrayList<T>> {
         System.arraycopy(externalArr, 0, this.arr, 0, size);
     }
 
+    /** Конструктор с заданием массива на основе коллекции.
+     * Создает копию указанного массива,
+    * при этом размер массива совпадает с размером исходного массива.
+    * При превышении размера - массив расширяется в 1.5 раза.
+    *
+    * @param collection - исходная коллекция
+    */
+    public SpecialArrayList(Collection<T> collection){
+        if(collection==null)
+            throw new NullParamException();
+        arr = (T[]) collection.toArray();
+    }
+
+    /**
+     * Добавление элемента в конец массива
+     * при превышении вместимости массива - происходит расширение
+     * в соответствии с коэффициентом расширения(expansionCoeff)
+     *
+     * @param obj добавляемый объект
+     */
     public void add(T obj) {
         if (obj == null)
             throw new NullParamException();
@@ -62,6 +111,15 @@ public class SpecialArrayList<T> implements Comparable<SpecialArrayList<T>> {
         arr[size++] = obj;
     }
 
+    /**
+     * Добавление элемента в массив по индексу.
+     * При этом сдвигая элементы начиная с этого индекса на один элемент к концу массива.
+     * При превышении вместимости массива - происходит расширение
+     * в соответствии с коэффициентом расширения(expansionCoeff)
+     *
+     * @param index место, в которое нужно добавить элемент
+     * @param obj   добавляемый объект
+     */
     public void add(int index, T obj) {
         if (index < 0 || index >= arr.length)
             throw new IndexOutOfRangeException(arr.length, index);
@@ -77,12 +135,26 @@ public class SpecialArrayList<T> implements Comparable<SpecialArrayList<T>> {
 
     }
 
+    /**
+     * Получение элемента по индексу
+     *
+     * @param index - положение(индекс) элемента который нужно получить
+     * @return - элемент типа, соответствующего типу коллекции
+     */
     public T get(int index) {
-        if (index < 0 || index >= arr.length)
+        if (index < 0 || index >= size)
             throw new IndexOutOfRangeException(arr.length, index);
         return arr[index];
     }
 
+    /**
+     * Удаление элемента по индексу
+     * удаляет элемент, находящийся по указанному индексу
+     * при этом сдвигая справа-стоящие элементы на
+     * один элемент влево
+     *
+     * @param index - индекс элемента, который нужно удалить
+     */
     public void remove(int index) {
         if (index < 0 || index >= arr.length)
             throw new IndexOutOfRangeException(arr.length, index);
@@ -91,6 +163,10 @@ public class SpecialArrayList<T> implements Comparable<SpecialArrayList<T>> {
         arr[--size] = null;
     }
 
+    /**
+     * Отчищает коллекцию
+     * при этом не сокращает размер его массива
+     */
     public void clean() {
         for (int i = 0; i < size; i++) {
             arr[i] = null;
@@ -98,6 +174,12 @@ public class SpecialArrayList<T> implements Comparable<SpecialArrayList<T>> {
         size = 0;
     }
 
+    /**
+     * Сортирует элементы массива
+     *
+     * @throws RuntimeException - если указанный тип коллекции,
+     *                          не реализует Comparable
+     */
     public void sort() {
         if (!(arr[0] instanceof Comparable))
             throw new RuntimeException("Not comparable!");
@@ -105,10 +187,21 @@ public class SpecialArrayList<T> implements Comparable<SpecialArrayList<T>> {
         quicksort(this.arr, 0, size - 1, Optional.empty());
     }
 
+    /**
+     * Сортирует коллекцию, используя Comparator
+     *
+     * @param comparator компаратор для сравнения элементов коллекции
+     */
     public void sort(Comparator<T> comparator) {
         quicksort(this.arr, 0, size - 1, Optional.of(comparator));
     }
 
+    /**
+     * Заменяет элемент на указанной позиции
+     *
+     * @param index позиция элемента, который нужно заменить
+     * @param obj   объект которым нужно заменить элемент
+     */
     public void replace(int index, T obj) {
         if (index < 0 || index >= arr.length)
             throw new IndexOutOfRangeException(arr.length, index);
@@ -118,6 +211,11 @@ public class SpecialArrayList<T> implements Comparable<SpecialArrayList<T>> {
         arr[index] = obj;
     }
 
+    /**
+     * Возвращает количество элементов в коллекции
+     *
+     * @return количество элементов в коллекции
+     */
     public int getSize() {
         return this.size;
     }
@@ -136,16 +234,44 @@ public class SpecialArrayList<T> implements Comparable<SpecialArrayList<T>> {
         size += externalArr.length;
     }
 
+    /**
+     * Сокращает размер внутреннего массива до количества элементов в нем
+     */
     public void trim() {
         T[] newArr = createArr(size);
         System.arraycopy(this.arr, 0, newArr, 0, newArr.length);
         this.arr = newArr;
     }
 
-    public T[] toArray() {
+    /**
+     * Возвращает копию массива коллекции
+     *
+     * @return копия массива коллекции
+     */
+    public T[] toArray() {//todo tests
         T[] publicArr = createArr(this.arr.length);
         System.arraycopy(arr, 0, publicArr, 0, arr.length);
         return publicArr;
+    }
+
+    /**
+     * Возвращает копию массива коллекции
+     * @param a массив в который предполагается копирование
+     * @return копия массива коллекции
+     */
+    public T[] toArray(T[] a) {
+        if(a.length<size)
+            return (T[]) Arrays.copyOf(arr,size,a.getClass());
+        System.arraycopy(arr, 0, a, 0, size);
+        return a;
+    }
+
+    /**
+     * Проверка пустоты листа
+     * @return ture - если лист пуст, в ином случае - false
+     */
+    public boolean isEmpty(){
+        return size==0;
     }
 
     //private methods
@@ -159,8 +285,8 @@ public class SpecialArrayList<T> implements Comparable<SpecialArrayList<T>> {
 
         int pivot;
 
-        //индекс елемента относительно которого сортировался массив
-        //обльшие элементы чем указанный находятся справа, меньшие слева
+        //индекс элемента относительно которого сортировался массив
+        //Большие элементы чем указанный находятся справа, меньшие слева
         if (optionalComparator.isEmpty()) {
             pivot = partition(arr, lowest, highest);
         } else {
@@ -184,11 +310,11 @@ public class SpecialArrayList<T> implements Comparable<SpecialArrayList<T>> {
             }
         }
 
-        //меняем местами елемент, который находится после половины с елементами меньшими чем pivot, и pivot елемент
+        //меняем местами элемент, который находится после половины с элементами меньшими чем pivot, и pivot элемент
         swap(smallerSideEnd, highest);
 
-        //возвращаем pivot елемент
-        //гарантированно что слева от этого элемента находятся элементы мельние чем pivot, а справа - бОльшие
+        //возвращаем pivot элемент
+        //гарантированно что слева от этого элемента находятся элементы меньшие чем pivot, а справа - бОльшие
         return smallerSideEnd;
     }
 
@@ -200,18 +326,18 @@ public class SpecialArrayList<T> implements Comparable<SpecialArrayList<T>> {
 
         int smallerSideEnd = lowest;
 
-        for (int i = lowest; i < highest - 1; i++) {
+        for (int i = lowest; i < highest; i++) {
             if (pivot.compareTo(arr[i]) >= 0) {
                 swap(i, smallerSideEnd++);
 
             }
         }
 
-        //меняем местами елемент, который находится после половины с елементами меньшими чем pivot, и pivot елемент
+        //меняем местами элемент, который находится после половины с элементами меньшими чем pivot, и pivot элемент
         swap(smallerSideEnd, highest);
 
-        //возвращаем pivot елемент
-        //гарантированно что слева от этого элемента находятся элементы мельние чем pivot, а справа - бОльшие
+        //возвращаем pivot элемент
+        //гарантированно что слева от этого элемента находятся элементы меньшие чем pivot, а справа - бОльшие
         return smallerSideEnd;
     }
 
@@ -250,9 +376,10 @@ public class SpecialArrayList<T> implements Comparable<SpecialArrayList<T>> {
 
     private T[] trim(T[] solidArr) {
         int newSize = solidArr.length;
-        for (int i = 0; i < solidArr.length; i++)
-            if (solidArr[i] == null)
+        for (int i = solidArr.length-1; i >= 0; i--)
+            if (solidArr[i] == null) {
                 newSize = i;
+            }
 
         T[] newArr = createArr(newSize);
         System.arraycopy(solidArr, 0, newArr, 0, newArr.length);
