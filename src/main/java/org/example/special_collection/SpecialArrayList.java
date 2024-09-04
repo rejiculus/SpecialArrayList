@@ -81,17 +81,19 @@ public class SpecialArrayList<T> implements Comparable<SpecialArrayList<T>> {
         System.arraycopy(externalArr, 0, this.arr, 0, size);
     }
 
-    /** Конструктор с заданием массива на основе коллекции.
+    /**
+     * Конструктор с заданием массива на основе коллекции.
      * Создает копию указанного массива,
-    * при этом размер массива совпадает с размером исходного массива.
-    * При превышении размера - массив расширяется в 1.5 раза.
-    *
-    * @param collection - исходная коллекция
-    */
-    public SpecialArrayList(Collection<T> collection){
-        if(collection==null)
+     * при этом размер массива совпадает с размером исходного массива.
+     * При превышении размера - массив расширяется в 1.5 раза.
+     *
+     * @param collection - исходная коллекция
+     */
+    public SpecialArrayList(Collection<T> collection) {
+        if (collection == null)
             throw new NullParamException();
         arr = (T[]) collection.toArray();
+        size = collection.size();
     }
 
     /**
@@ -256,22 +258,24 @@ public class SpecialArrayList<T> implements Comparable<SpecialArrayList<T>> {
 
     /**
      * Возвращает копию массива коллекции
+     *
      * @param a массив в который предполагается копирование
      * @return копия массива коллекции
      */
     public T[] toArray(T[] a) {
-        if(a.length<size)
-            return (T[]) Arrays.copyOf(arr,size,a.getClass());
+        if (a.length < size)
+            return (T[]) Arrays.copyOf(arr, size, a.getClass());
         System.arraycopy(arr, 0, a, 0, size);
         return a;
     }
 
     /**
      * Проверка пустоты листа
+     *
      * @return ture - если лист пуст, в ином случае - false
      */
-    public boolean isEmpty(){
-        return size==0;
+    public boolean isEmpty() {
+        return size == 0;
     }
 
     //private methods
@@ -376,7 +380,7 @@ public class SpecialArrayList<T> implements Comparable<SpecialArrayList<T>> {
 
     private T[] trim(T[] solidArr) {
         int newSize = solidArr.length;
-        for (int i = solidArr.length-1; i >= 0; i--)
+        for (int i = solidArr.length - 1; i >= 0; i--)
             if (solidArr[i] == null) {
                 newSize = i;
             }
