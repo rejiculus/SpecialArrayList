@@ -1,9 +1,6 @@
 package org.example.special_collection;
 
-import org.example.special_collection.exception.CapacityException;
-import org.example.special_collection.exception.ExpansionCoefficientException;
-import org.example.special_collection.exception.IndexOutOfRangeException;
-import org.example.special_collection.exception.NullParamException;
+import org.example.special_collection.exception.*;
 
 import java.util.*;
 
@@ -184,7 +181,7 @@ public class SpecialArrayList<T> implements Comparable<SpecialArrayList<T>> {
      */
     public void sort() {
         if (!(arr[0] instanceof Comparable))
-            throw new RuntimeException("Not comparable!");
+            throw new NotComparableException();
 
         quicksort(this.arr, 0, size - 1, Optional.empty());
     }
@@ -195,6 +192,8 @@ public class SpecialArrayList<T> implements Comparable<SpecialArrayList<T>> {
      * @param comparator компаратор для сравнения элементов коллекции
      */
     public void sort(Comparator<T> comparator) {
+        if(comparator == null)
+            throw new NullParamException();
         quicksort(this.arr, 0, size - 1, Optional.of(comparator));
     }
 
@@ -205,7 +204,7 @@ public class SpecialArrayList<T> implements Comparable<SpecialArrayList<T>> {
      * @param obj   объект которым нужно заменить элемент
      */
     public void replace(int index, T obj) {
-        if (index < 0 || index >= arr.length)
+        if (index < 0 || index >= size)
             throw new IndexOutOfRangeException(arr.length, index);
         if (obj == null)
             throw new NullParamException();
