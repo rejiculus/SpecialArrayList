@@ -124,7 +124,7 @@ class SpecialArrayListTest {
     public void addNullTest(){
         SpecialArrayList<String> arr = new SpecialArrayList<>();
 
-        Assertions.assertThrows(NullParamException.class, ()-> arr.add(null));
+        Assertions.assertThrows(NullParamException.class, ()-> arr.add((String) null));
     }
 
     //add by index
@@ -350,9 +350,9 @@ class SpecialArrayListTest {
     }
     @Test
     public void replaceNullTest(){
-        Random random = new Random();
-        int capacity = 100;
-        SpecialArrayList<Integer> arr = new SpecialArrayList<>(capacity);
+        SpecialArrayList<Integer> arr = new SpecialArrayList<>(100);
+
+        arr.addAll(1,2,3);
 
         Assertions.assertThrows(NullParamException.class, ()-> arr.replace(1, null));
 
@@ -400,24 +400,166 @@ class SpecialArrayListTest {
 
     //others
     //addAll
-//    public void addAllTest();
-//    public void addAllNullTest();
-//    public void addAllEmptyTest();
+    @Test
+    public void addAllTest(){
+        Random random = new Random();
+        int capacity = 100;
+        Integer[] exp = new Integer[capacity/2];
+        SpecialArrayList<Integer> arr = new SpecialArrayList<>(capacity);
+
+        for(int i=0;i<capacity/2;i++){
+            exp[i] = random.nextInt(1000)-500;
+        }
+
+        arr.addAll(exp);
+
+
+        assertEquals(exp.length, arr.getSize());
+        for(int i=0;i<exp.length;i++){
+            assertEquals(exp[i], arr.get(i));
+        }
+    }
+    @Test
+    public void addAllNullTest(){
+        SpecialArrayList<Integer> arr = new SpecialArrayList<>(100);
+
+        Assertions.assertThrows(NullParamException.class, ()-> arr.addAll(null));
+    }
+    @Test
+    public void addAllEmptyTest(){
+        int capacity = 100;
+        Integer[] exp = new Integer[capacity/2];
+        SpecialArrayList<Integer> arr = new SpecialArrayList<>(capacity);
+
+        arr.addAll(exp);
+
+        assertTrue(arr.isEmpty());
+
+    }
+    @Test
+    public void addAllExpansionTest(){Random random = new Random();
+        int capacity = 100;
+        Integer[] exp = new Integer[capacity];
+        SpecialArrayList<Integer> arr = new SpecialArrayList<>();
+
+        for(int i=0;i<capacity;i++){
+            exp[i] = random.nextInt(1000)-500;
+        }
+
+        arr.addAll(exp);
+
+
+        assertEquals(exp.length, arr.getSize());
+        for(int i=0;i<exp.length;i++){
+            assertEquals(exp[i], arr.get(i));
+        }
+
+    }
+
 
     //trim
-//    public void trimTest();
+    @Test
+    public void trimTest() throws NoSuchFieldException, IllegalAccessException {
+        Random random = new Random();
+        int capacity = 100;
+        SpecialArrayList<Integer> arr = new SpecialArrayList<>(capacity);
+        for(int i =0;i<capacity/2;i++){
+            arr.add(random.nextInt(1000)-500);
+        }
+
+        Object[] insideArr = getInsideArr(arr);
+
+        assertEquals(capacity, insideArr.length);
+        assertEquals(capacity/2, arr.getSize());
+
+        arr.trim();
+
+        insideArr = getInsideArr(arr);
+
+        assertEquals(capacity/2, arr.getSize());
+        assertEquals(arr.getSize(), insideArr.length);
+    }
 
     //toArray
 //    public void toArrayTest();
 
     //toArray with external Array
-//    public void toArrayParamTest();
-//    public void toArrayNullTest();
+    @Test
+    public void toArrayParamTest(){
+        Random random = new Random();
+        int capacity = 100;
+        Integer[] exp = new Integer[capacity];
+        SpecialArrayList<Integer> arr = new SpecialArrayList<>(capacity);
+
+        for(int i =0;i<capacity;i++){
+            Integer val = random.nextInt(1000)-500;
+            arr.add(val);
+            exp[i] = val;
+        }
+
+        Integer[] res = arr.toArray(new Integer[0]);
+
+        assertArrayEquals(exp, res);
+    }
+    @Test
+    public void toArrayNullTest(){
+        Random random = new Random();
+        int capacity = 100;
+        Integer[] exp = new Integer[capacity];
+        SpecialArrayList<Integer> arr = new SpecialArrayList<>(capacity);
+
+        for(int i =0;i<capacity;i++){
+            Integer val = random.nextInt(1000)-500;
+            arr.add(val);
+            exp[i] = val;
+        }
+
+        Assertions.assertThrows(NullParamException.class, ()-> arr.toArray(null));
+    }
 
     //is Empty
-//    public void isEmptyTest();
+    @Test
+    public void isEmptyTest(){
+        SpecialArrayList<Object> arr = new SpecialArrayList<>();
+        assertTrue(arr.isEmpty());
 
+        arr.add(new Object());
+        assertFalse(arr.isEmpty());
 
+        arr.clean();
+        assertTrue(arr.isEmpty());
+
+    }
+
+    //
+    @Test
+    public void equalsTest(){
+        Random random = new Random();
+        SpecialArrayList<Integer> arr1 = new SpecialArrayList<>();
+        SpecialArrayList<Integer> arr2 = new SpecialArrayList<>();
+
+        for(int i=0;i<100;i++){
+            int val = random.nextInt(100000)-50000;
+            arr1.add(val);
+            arr2.add(val);
+        }
+
+        assertEquals(arr1, arr2);
+    }
+    @Test
+    public void hashCodeTest(){
+        Random random = new Random();
+        SpecialArrayList<Integer> arr1 = new SpecialArrayList<>();
+        SpecialArrayList<Integer> arr2 = new SpecialArrayList<>();
+
+        for(int i=0;i<100;i++){
+            int val = random.nextInt(100000)-50000;
+            arr1.add(val);
+            arr2.add(val);
+        }
+
+        assertEquals(arr1.hashCode(), arr2.hashCode());
+    }
 
 
 
