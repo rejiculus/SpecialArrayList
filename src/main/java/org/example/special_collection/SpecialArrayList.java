@@ -11,7 +11,7 @@ import java.util.*;
  *
  * @param <T>
  */
-public class SpecialArrayList<T> implements Comparable<SpecialArrayList<T>> {
+public class SpecialArrayList<T> {
     private static final Double HIGHEST_EXPANSION_COEFFICIENT = 2.0;
     private Double expansionCoeff = 1.5;
     private T[] arr;
@@ -109,6 +109,8 @@ public class SpecialArrayList<T> implements Comparable<SpecialArrayList<T>> {
 
         arr[size++] = obj;
     }
+
+
 
     /**
      * Добавление элемента в массив по индексу.
@@ -223,11 +225,12 @@ public class SpecialArrayList<T> implements Comparable<SpecialArrayList<T>> {
 
 
     // others
-    public void addAll(T[] arr) {
+    public void addAll(T... arr) {
         if (arr == null)
             throw new NullParamException();
 
         T[] externalArr = prepareReceivingArray(arr);
+
         if (size + externalArr.length >= this.arr.length)
             expanseArray(size + externalArr.length);
 
@@ -262,6 +265,8 @@ public class SpecialArrayList<T> implements Comparable<SpecialArrayList<T>> {
      * @return копия массива коллекции
      */
     public T[] toArray(T[] a) {
+        if(a == null)
+            throw new NullParamException();
         if (a.length < size)
             return (T[]) Arrays.copyOf(arr, size, a.getClass());
         System.arraycopy(arr, 0, a, 0, size);
@@ -366,7 +371,7 @@ public class SpecialArrayList<T> implements Comparable<SpecialArrayList<T>> {
     }
 
     private static <T> T[] createArr(int capacity) {
-        if (capacity <= 0)
+        if (capacity < 0)
             throw new CapacityException(capacity);
 
         return (T[]) new Object[capacity];
@@ -396,15 +401,13 @@ public class SpecialArrayList<T> implements Comparable<SpecialArrayList<T>> {
 
         int actuallySize = 0;
         for (int i = 0; i < newArr.length; i++) {
-            if (newArr[i] != null)
-                newArr[actuallySize++] = newArr[i];
+            if (newArr[i] != null) {
+                T temp = newArr[i];
+                newArr[i] = null;
+                newArr[actuallySize++]= temp;
+            }
         }
         return newArr;
-    }
-
-    @Override
-    public int compareTo(SpecialArrayList<T> o) {
-        return size - o.getSize();  //todo придумать лучший способ
     }
 
     @Override
