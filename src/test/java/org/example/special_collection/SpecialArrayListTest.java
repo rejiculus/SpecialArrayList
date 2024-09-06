@@ -129,7 +129,7 @@ class SpecialArrayListTest {
 
     //add by index
     @Test
-    public void addByIndexTest() throws NoSuchFieldException, IllegalAccessException {
+    public void addByIndexLTest() throws NoSuchFieldException, IllegalAccessException {
         Integer[] inp = new Integer[]{1,2,3,4,5,6,7};
         SpecialArrayList<Integer> arr = new SpecialArrayList<>(inp);
 
@@ -142,7 +142,7 @@ class SpecialArrayListTest {
         }
     }
     @Test
-    public void addByIndex2Test() throws NoSuchFieldException, IllegalAccessException {
+    public void addByIndexMTest() throws NoSuchFieldException, IllegalAccessException {
         Integer[] inp = new Integer[]{1,2,3,4,5,6,7};
         SpecialArrayList<Integer> arr = new SpecialArrayList<>(inp);
 
@@ -150,6 +150,19 @@ class SpecialArrayListTest {
 
         Object[] insideArr = getInsideArr(arr);
         Integer[] exp = new Integer[]{1,2,3,4,42,5,6,7};
+        for(int i=0;i<exp.length;i++){
+            assertEquals(exp[i],insideArr[i]);
+        }
+    }
+    @Test
+    public void addByIndexRTest() throws NoSuchFieldException, IllegalAccessException {
+        Integer[] inp = new Integer[]{1,2,3,4,5,6,7};
+        SpecialArrayList<Integer> arr = new SpecialArrayList<>(inp);
+
+        arr.add(inp.length, 42);
+
+        Object[] insideArr = getInsideArr(arr);
+        Integer[] exp = new Integer[]{1,2,3,4,5,6,7,42};
         for(int i=0;i<exp.length;i++){
             assertEquals(exp[i],insideArr[i]);
         }
@@ -167,7 +180,7 @@ class SpecialArrayListTest {
         SpecialArrayList<Integer> arr = new SpecialArrayList<>(inp);
 
         for(int i=-10;i<10;i++){
-            if(i<0 || i>=inp.length) {
+            if(i<0 || i>inp.length) {
                 int finalI = i;
                 Assertions.assertThrows(IndexOutOfRangeException.class, ()-> arr.add(finalI,99));
             }
@@ -352,7 +365,7 @@ class SpecialArrayListTest {
     public void replaceNullTest(){
         SpecialArrayList<Integer> arr = new SpecialArrayList<>(100);
 
-        arr.addAll(1,2,3);
+        arr.addAll(new Integer[]{1,2,3});
 
         Assertions.assertThrows(NullParamException.class, ()-> arr.replace(1, null));
 
@@ -399,6 +412,7 @@ class SpecialArrayListTest {
     }
 
     //others
+
     //addAll
     @Test
     public void addAllTest(){
@@ -481,7 +495,23 @@ class SpecialArrayListTest {
     }
 
     //toArray
-//    public void toArrayTest();
+    @Test
+    public void toArrayTest(){
+        Random random = new Random();
+        int capacity = 100;
+        Integer[] exp = new Integer[capacity];
+        SpecialArrayList<Integer> arr = new SpecialArrayList<>(capacity);
+
+        for(int i =0;i<capacity;i++){
+            Integer val = random.nextInt(1000)-500;
+            arr.add(val);
+            exp[i] = val;
+        }
+
+        Object[] res = arr.toArray();
+
+        assertArrayEquals(exp, res);
+    }
 
     //toArray with external Array
     @Test
@@ -569,7 +599,7 @@ class SpecialArrayListTest {
         return (Object[]) arrField.get(arr);
     }
     private Double getInsideExpansionCoefficient(SpecialArrayList<?> arr) throws NoSuchFieldException, IllegalAccessException {
-        Field arrField = arr.getClass().getDeclaredField("expansionCoeff");
+        Field arrField = arr.getClass().getDeclaredField("expansionCoefficient");
         arrField.setAccessible(true);
         return (Double) arrField.get(arr);
     }
