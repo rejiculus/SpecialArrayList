@@ -49,10 +49,10 @@ public class SpecialArrayList<T> {
      * When the specified size is exceeded, the array
      * is increased according to the specified coefficient.
      *
-     * @param capacity              the size of the array to be created.
-     * @param expansionCoefficient  the expansion coefficient. Must be greater than 1.0,
-     *                              but no greater than HIGHEST_EXPANSION_COEFFICIENT.
-     * @throws CapacityException if the specified size is less than zero.
+     * @param capacity             the size of the array to be created.
+     * @param expansionCoefficient the expansion coefficient. Must be greater than 1.0,
+     *                             but no greater than HIGHEST_EXPANSION_COEFFICIENT.
+     * @throws CapacityException             if the specified size is less than zero.
      * @throws ExpansionCoefficientException if the coefficient is less than (or equal to) 1.0
      *                                       or greater than HIGHEST_EXPANSION_COEFFICIENT.
      */
@@ -129,9 +129,9 @@ public class SpecialArrayList<T> {
      * according to the expansion coefficient (expansionCoefficient).
      *
      * @param index the position where the element should be added.
-     * @param obj the object to be added.
+     * @param obj   the object to be added.
      * @throws IndexOutOfRangeException if the index is less than zero or greater than the current size.
-     * @throws NullParamException if the provided parameter is null.
+     * @throws NullParamException       if the provided parameter is null.
      */
     public void add(int index, T obj) {
         if (index < 0 || index > size)
@@ -182,8 +182,8 @@ public class SpecialArrayList<T> {
      * This does not reduce the size of the underlying array.
      */
     public void clean() {
-        while(size>0){
-            arr[--size]=null;
+        while (size > 0) {
+            arr[--size] = null;
         }
     }
 
@@ -191,7 +191,7 @@ public class SpecialArrayList<T> {
      * Sorts the elements of the array.
      *
      * @throws NotComparableException if the specified collection type
-     *                                 does not implement Comparable.
+     *                                does not implement Comparable.
      */
     public void sort() {
         if (!(arr[0] instanceof Comparable))
@@ -217,9 +217,9 @@ public class SpecialArrayList<T> {
      * Replaces the element at the specified position.
      *
      * @param index the position of the element to be replaced.
-     * @param obj the object to replace the element with.
+     * @param obj   the object to replace the element with.
      * @throws IndexOutOfRangeException if the index is less than zero or greater than the current size.
-     * @throws NullParamException if the provided parameter is null.
+     * @throws NullParamException       if the provided parameter is null.
      */
     public void replace(int index, T obj) {
         if (index < 0 || index >= size)
@@ -249,7 +249,7 @@ public class SpecialArrayList<T> {
      * @param arr the elements to be added.
      * @throws NullParamException if the provided parameter is null.
      */
-    public void addAll(T... arr) {
+    public void addAll(T[] arr) {
         if (arr == null)
             throw new NullParamException();
 
@@ -276,8 +276,8 @@ public class SpecialArrayList<T> {
      *
      * @return a copy of the collection's array.
      */
-    public T[] toArray() {//todo tests
-        T[] publicArr = createArr(this.arr.length);
+    public Object[] toArray() {//todo tests
+        Object[] publicArr = new Object[this.arr.length];
         System.arraycopy(arr, 0, publicArr, 0, arr.length);
         return publicArr;
     }
