@@ -1,6 +1,9 @@
 package org.example.special_collection.exception;
 
-public class NotComparableException extends RuntimeException{
+/**
+ * Thrown to indicate that current generic type is not comparable.
+ */
+public class NotComparableException extends RuntimeException {
     public NotComparableException() {
         super("Generic type is not comparable!");
     }
