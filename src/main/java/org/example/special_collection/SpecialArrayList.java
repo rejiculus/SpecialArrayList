@@ -276,7 +276,7 @@ public class SpecialArrayList<T> {
      *
      * @return a copy of the collection's array.
      */
-    public Object[] toArray() {//todo tests
+    public Object[] toArray() {
         Object[] publicArr = new Object[this.arr.length];
         System.arraycopy(arr, 0, publicArr, 0, arr.length);
         return publicArr;
