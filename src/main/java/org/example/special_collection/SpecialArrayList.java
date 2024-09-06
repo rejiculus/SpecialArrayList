@@ -2,36 +2,40 @@ package org.example.special_collection;
 
 import org.example.special_collection.exception.*;
 
-import java.util.*;
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.Comparator;
+import java.util.Optional;
 
 /**
- * Собственная реализация ArrayLis
- * хранит значения указанного типа
- * не хранит null
+ * Custom implementation of an ArrayList.
+ * Stores values of the specified type.
+ * Does not store null values.
  *
- * @param <T>
+ * @param <T> the type of stored elements.
  */
 public class SpecialArrayList<T> {
     private static final Double HIGHEST_EXPANSION_COEFFICIENT = 2.0;
-    private Double expansionCoeff = 1.5;
+    private Double expansionCoefficient = 1.5;
     private T[] arr;
     private int size = 0;
 
     /**
-     * Конструктор по умолчанию
-     * изначальный размер массива задается равным 10
-     * по умолчанию, при превышении указанного размера
-     * массив увеличивается в 1.5 раза
+     * Default constructor.
+     * The initial array size is set to 10.
+     * By default, when the specified size is exceeded,
+     * the array is increased by 1.5 times.
      */
     public SpecialArrayList() {
         arr = createArr(10);
     }
 
     /**
-     * Конструктор с указанием размера по умолчанию
-     * при превышении указанного размера - массив увеличивается в 1.5 раза
+     * Constructor with a specified default size.
+     * When the specified size is exceeded, the array is increased by 1.5 times.
      *
-     * @param capacity - размер создаваемого массива
+     * @param capacity the size of the array to be created.
+     * @throws CapacityException if the specified size is less than zero.
      */
     public SpecialArrayList(int capacity) {
         if (capacity <= 0)
@@ -41,64 +45,71 @@ public class SpecialArrayList<T> {
     }
 
     /**
-     * Конструктор с указанием размера по умолчанию и коэффициента расширения
-     * при превышении указанного размера - массив
-     * увеличивается в соответствии с указанным коэффициентом
+     * Constructor with a specified default size and expansion coefficient.
+     * When the specified size is exceeded, the array
+     * is increased according to the specified coefficient.
      *
-     * @param capacity       - размер создаваемого массива
-     * @param expansionCoeff - коэффициент расширения. Должен быть больше 1.0, но
-     *                       не больше чем HIGHEST_EXPANSION_COEFFICIENT
+     * @param capacity              the size of the array to be created.
+     * @param expansionCoefficient  the expansion coefficient. Must be greater than 1.0,
+     *                              but no greater than HIGHEST_EXPANSION_COEFFICIENT.
+     * @throws CapacityException if the specified size is less than zero.
+     * @throws ExpansionCoefficientException if the coefficient is less than (or equal to) 1.0
+     *                                       or greater than HIGHEST_EXPANSION_COEFFICIENT.
      */
-    public SpecialArrayList(int capacity, Double expansionCoeff) {
+    public SpecialArrayList(int capacity, Double expansionCoefficient) {
         if (capacity <= 0)
             throw new CapacityException(capacity);
-        if (expansionCoeff <= 1.0 || expansionCoeff > HIGHEST_EXPANSION_COEFFICIENT)
-            throw new ExpansionCoefficientException(expansionCoeff, HIGHEST_EXPANSION_COEFFICIENT);
+        if (expansionCoefficient <= 1.0 || expansionCoefficient > HIGHEST_EXPANSION_COEFFICIENT)
+            throw new ExpansionCoefficientException(expansionCoefficient, HIGHEST_EXPANSION_COEFFICIENT);
 
         arr = createArr(capacity);
-        this.expansionCoeff = expansionCoeff;
+        this.expansionCoefficient = expansionCoefficient;
     }
 
     /**
-     * Конструктор с заданным массивом
-     * создает копию указанного массива
-     * при этом размер массива совпадает с размером исходного массива
-     * при превышении размера - массив расширяется в 1.5 раза
+     * Constructor with a specified array.
+     * Creates a copy of the given array,
+     * with the size matching the original array's size.
+     * When the size is exceeded, the array expands by 1.5 times.
      *
-     * @param arr - исходный массив
+     * @param arr the original array.
+     * @throws NullParamException if the provided parameter is null.
      */
     public SpecialArrayList(T[] arr) {
         if (arr == null)
             throw new NullParamException();
 
-        T[] externalArr = prepareReceivingArray(arr);
+        T[] externalArr = prepareReceivingArray(arr);   // сокращение массива до значимых элементов
+
         this.size = externalArr.length;
         this.arr = createArr(size);
-
         System.arraycopy(externalArr, 0, this.arr, 0, size);
     }
 
     /**
-     * Конструктор с заданием массива на основе коллекции.
-     * Создает копию указанного массива,
-     * при этом размер массива совпадает с размером исходного массива.
-     * При превышении размера - массив расширяется в 1.5 раза.
+     * Constructor that creates an array based on a collection.
+     * Creates a copy of the specified array,
+     * with the size matching the original collection's size.
+     * When the size is exceeded, the array expands by 1.5 times.
      *
-     * @param collection - исходная коллекция
+     * @param collection the original collection.
+     * @throws NullParamException if the provided parameter is null.
      */
     public SpecialArrayList(Collection<T> collection) {
         if (collection == null)
             throw new NullParamException();
+
         arr = (T[]) collection.toArray();
         size = collection.size();
     }
 
     /**
-     * Добавление элемента в конец массива
-     * при превышении вместимости массива - происходит расширение
-     * в соответствии с коэффициентом расширения(expansionCoeff)
+     * Adds an element to the end of the array.
+     * When the array's capacity is exceeded, it is expanded
+     * according to the expansion coefficient (expansionCoefficient).
      *
-     * @param obj добавляемый объект
+     * @param obj the object to be added.
+     * @throws NullParamException if the provided parameter is null.
      */
     public void add(T obj) {
         if (obj == null)
@@ -111,19 +122,20 @@ public class SpecialArrayList<T> {
     }
 
 
-
     /**
-     * Добавление элемента в массив по индексу.
-     * При этом сдвигая элементы начиная с этого индекса на один элемент к концу массива.
-     * При превышении вместимости массива - происходит расширение
-     * в соответствии с коэффициентом расширения(expansionCoeff)
+     * Adds an element to the array at the specified index,
+     * shifting elements starting from this index one position towards the end of the array.
+     * When the array's capacity is exceeded, it is expanded
+     * according to the expansion coefficient (expansionCoefficient).
      *
-     * @param index место, в которое нужно добавить элемент
-     * @param obj   добавляемый объект
+     * @param index the position where the element should be added.
+     * @param obj the object to be added.
+     * @throws IndexOutOfRangeException if the index is less than zero or greater than the current size.
+     * @throws NullParamException if the provided parameter is null.
      */
     public void add(int index, T obj) {
-        if (index < 0 || index >= arr.length)
-            throw new IndexOutOfRangeException(arr.length, index);
+        if (index < 0 || index > size)
+            throw new IndexOutOfRangeException(size, index);
         if (obj == null)
             throw new NullParamException();
 
@@ -133,53 +145,53 @@ public class SpecialArrayList<T> {
         System.arraycopy(arr, index, arr, index + 1, size - index);
         arr[index] = obj;
         size++;
-
     }
 
     /**
-     * Получение элемента по индексу
+     * Retrieves an element by index.
      *
-     * @param index - положение(индекс) элемента который нужно получить
-     * @return - элемент типа, соответствующего типу коллекции
+     * @param index the position (index) of the element to be retrieved.
+     * @return the element of the type corresponding to the collection's type.
+     * @throws IndexOutOfRangeException if the index is less than zero or greater than the current size.
      */
     public T get(int index) {
         if (index < 0 || index >= size)
-            throw new IndexOutOfRangeException(arr.length, index);
+            throw new IndexOutOfRangeException(size, index);
+
         return arr[index];
     }
 
     /**
-     * Удаление элемента по индексу
-     * удаляет элемент, находящийся по указанному индексу
-     * при этом сдвигая справа-стоящие элементы на
-     * один элемент влево
+     * Removes an element by index.
+     * Removes the element at the specified index,
+     * shifting elements to the right of the index one position to the left.
      *
-     * @param index - индекс элемента, который нужно удалить
+     * @param index the index of the element to be removed.
+     * @throws IndexOutOfRangeException if the index is less than zero or greater than the current size.
      */
     public void remove(int index) {
-        if (index < 0 || index >= arr.length)
-            throw new IndexOutOfRangeException(arr.length, index);
+        if (index < 0 || index >= size)
+            throw new IndexOutOfRangeException(size, index);
 
         System.arraycopy(arr, index + 1, arr, index, size - index - 1);
         arr[--size] = null;
     }
 
     /**
-     * Отчищает коллекцию
-     * при этом не сокращает размер его массива
+     * Clears the collection.
+     * This does not reduce the size of the underlying array.
      */
     public void clean() {
-        for (int i = 0; i < size; i++) {
-            arr[i] = null;
+        while(size>0){
+            arr[--size]=null;
         }
-        size = 0;
     }
 
     /**
-     * Сортирует элементы массива
+     * Sorts the elements of the array.
      *
-     * @throws RuntimeException - если указанный тип коллекции,
-     *                          не реализует Comparable
+     * @throws NotComparableException if the specified collection type
+     *                                 does not implement Comparable.
      */
     public void sort() {
         if (!(arr[0] instanceof Comparable))
@@ -189,25 +201,29 @@ public class SpecialArrayList<T> {
     }
 
     /**
-     * Сортирует коллекцию, используя Comparator
+     * Sorts the collection using a Comparator.
      *
-     * @param comparator компаратор для сравнения элементов коллекции
+     * @param comparator the comparator used for comparing collection elements.
+     * @throws NullParamException if the provided parameter is null.
      */
     public void sort(Comparator<T> comparator) {
-        if(comparator == null)
+        if (comparator == null)
             throw new NullParamException();
+
         quicksort(this.arr, 0, size - 1, Optional.of(comparator));
     }
 
     /**
-     * Заменяет элемент на указанной позиции
+     * Replaces the element at the specified position.
      *
-     * @param index позиция элемента, который нужно заменить
-     * @param obj   объект которым нужно заменить элемент
+     * @param index the position of the element to be replaced.
+     * @param obj the object to replace the element with.
+     * @throws IndexOutOfRangeException if the index is less than zero or greater than the current size.
+     * @throws NullParamException if the provided parameter is null.
      */
     public void replace(int index, T obj) {
         if (index < 0 || index >= size)
-            throw new IndexOutOfRangeException(arr.length, index);
+            throw new IndexOutOfRangeException(size, index);
         if (obj == null)
             throw new NullParamException();
 
@@ -215,9 +231,9 @@ public class SpecialArrayList<T> {
     }
 
     /**
-     * Возвращает количество элементов в коллекции
+     * Returns the number of elements in the collection.
      *
-     * @return количество элементов в коллекции
+     * @return the number of elements in the collection.
      */
     public int getSize() {
         return this.size;
@@ -225,6 +241,14 @@ public class SpecialArrayList<T> {
 
 
     // others
+
+    /**
+     * Adds all specified elements.
+     * Expands the array as needed to accommodate both arrays.
+     *
+     * @param arr the elements to be added.
+     * @throws NullParamException if the provided parameter is null.
+     */
     public void addAll(T... arr) {
         if (arr == null)
             throw new NullParamException();
@@ -239,7 +263,7 @@ public class SpecialArrayList<T> {
     }
 
     /**
-     * Сокращает размер внутреннего массива до количества элементов в нем
+     * Reduces the size of the internal array to the number of elements in it.
      */
     public void trim() {
         T[] newArr = createArr(size);
@@ -248,9 +272,9 @@ public class SpecialArrayList<T> {
     }
 
     /**
-     * Возвращает копию массива коллекции
+     * Returns a copy of the collection's array.
      *
-     * @return копия массива коллекции
+     * @return a copy of the collection's array.
      */
     public T[] toArray() {//todo tests
         T[] publicArr = createArr(this.arr.length);
@@ -259,13 +283,14 @@ public class SpecialArrayList<T> {
     }
 
     /**
-     * Возвращает копию массива коллекции
+     * Returns a copy of the collection's array.
      *
-     * @param a массив в который предполагается копирование
-     * @return копия массива коллекции
+     * @param a the array into which the copy is to be placed.
+     * @return a copy of the collection's array.
+     * @throws NullParamException if the provided parameter is null.
      */
     public T[] toArray(T[] a) {
-        if(a == null)
+        if (a == null)
             throw new NullParamException();
         if (a.length < size)
             return (T[]) Arrays.copyOf(arr, size, a.getClass());
@@ -274,9 +299,9 @@ public class SpecialArrayList<T> {
     }
 
     /**
-     * Проверка пустоты листа
+     * Checks if the list is empty.
      *
-     * @return ture - если лист пуст, в ином случае - false
+     * @return true if the list is empty, otherwise false.
      */
     public boolean isEmpty() {
         return size == 0;
@@ -328,7 +353,7 @@ public class SpecialArrayList<T> {
 
     private int partition(T[] arr, int lowest, int highest) {
         if (!(arr[0] instanceof Comparable))
-            throw new RuntimeException("Not comparable!");
+            throw new NotComparableException();
 
         Comparable<T> pivot = (Comparable<T>) arr[highest];
 
@@ -356,7 +381,7 @@ public class SpecialArrayList<T> {
     }
 
     private void expanseArray() {
-        T[] newArr = createArr((int) (arr.length * expansionCoeff) + 1);
+        T[] newArr = createArr((int) (arr.length * expansionCoefficient) + 1);
         System.arraycopy(arr, 0, newArr, 0, arr.length);
         this.arr = newArr;
     }
@@ -404,7 +429,7 @@ public class SpecialArrayList<T> {
             if (newArr[i] != null) {
                 T temp = newArr[i];
                 newArr[i] = null;
-                newArr[actuallySize++]= temp;
+                newArr[actuallySize++] = temp;
             }
         }
         return newArr;
