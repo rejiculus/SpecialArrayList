@@ -435,20 +435,37 @@ public class SpecialArrayList<T> {
         return newArr;
     }
 
+    /**
+     * Comparing array from this object with array form obj
+     *
+     * @param obj the object we want to compare with.
+     * @return true - if equals arrays in both objects, false - if arrays has differences
+     */
     @Override
-    public final boolean equals(Object o) {
-        if (this == o) return true;
-        if (!(o instanceof SpecialArrayList)) return false;
+    public final boolean equals(Object obj) {
+        if (this == obj) return true;
+        if (!(obj instanceof SpecialArrayList)) return false;
 
-        SpecialArrayList<?> that = (SpecialArrayList<?>) o;
+        SpecialArrayList<?> that = (SpecialArrayList<?>) obj;
         return Arrays.equals(arr, that.arr);
     }
 
+    /**
+     * Returns a hash code value of this object.
+     * The value is calculated by the hash code of the internal array
+     *
+     * @return a hash code value of this object.
+     */
     @Override
     public int hashCode() {
         return Arrays.hashCode(arr);
     }
 
+    /**
+     * Describes the current object and the elements it stores.
+     *
+     * @return a string description of the current object
+     */
     @Override
     public String toString() {
         return "SpecialArrayList{" +
