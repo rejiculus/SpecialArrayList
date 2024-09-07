@@ -10,12 +10,10 @@ import java.util.Optional;
 /**
  * Custom implementation of an ArrayList.
  * Stores values of the specified type.
- * Does not store null values.
  *
  * @param <T> the type of stored elements.
  */
 public class SpecialArrayList<T> {
-    private static final Double HIGHEST_EXPANSION_COEFFICIENT = 2.0;
     private Double expansionCoefficient = 1.5;
     private T[] arr;
     private int size = 0;
@@ -59,8 +57,8 @@ public class SpecialArrayList<T> {
     public SpecialArrayList(int capacity, Double expansionCoefficient) {
         if (capacity <= 0)
             throw new CapacityException(capacity);
-        if (expansionCoefficient <= 1.0 || expansionCoefficient > HIGHEST_EXPANSION_COEFFICIENT)
-            throw new ExpansionCoefficientException(expansionCoefficient, HIGHEST_EXPANSION_COEFFICIENT);
+        if (expansionCoefficient <= 1.0)
+            throw new ExpansionCoefficientException(expansionCoefficient);
 
         arr = createArr(capacity);
         this.expansionCoefficient = expansionCoefficient;
@@ -72,14 +70,12 @@ public class SpecialArrayList<T> {
      * with the size matching the original array's size.
      * When the size is exceeded, the array expands by 1.5 times.
      *
-     * @param arr the original array.
+     * @param externalArr the original array.
      * @throws NullParamException if the provided parameter is null.
      */
-    public SpecialArrayList(T[] arr) {
-        if (arr == null)
+    public SpecialArrayList(T[] externalArr) {
+        if (externalArr == null)
             throw new NullParamException();
-
-        T[] externalArr = prepareReceivingArray(arr);   // сокращение массива до значимых элементов
 
         this.size = externalArr.length;
         this.arr = createArr(size);
@@ -112,15 +108,12 @@ public class SpecialArrayList<T> {
      * @throws NullParamException if the provided parameter is null.
      */
     public void add(T obj) {
-        if (obj == null)
-            throw new NullParamException();
 
         if (size == arr.length)
             expanseArray();
 
         arr[size++] = obj;
     }
-
 
     /**
      * Adds an element to the array at the specified index,
@@ -136,8 +129,6 @@ public class SpecialArrayList<T> {
     public void add(int index, T obj) {
         if (index < 0 || index > size)
             throw new IndexOutOfRangeException(size, index);
-        if (obj == null)
-            throw new NullParamException();
 
         if (size == arr.length)
             expanseArray();
@@ -189,26 +180,34 @@ public class SpecialArrayList<T> {
 
     /**
      * Sorts the elements of the array.
+     * Array have to be without null elements.
      *
-     * @throws NotComparableException if the specified collection type
-     *                                does not implement Comparable.
+     * @throws NotComparableException   if the specified collection type
+     *                                  does not implement Comparable.
+     * @throws SortNullElementException if collection contains null elements.
      */
     public void sort() {
         if (!(arr[0] instanceof Comparable))
             throw new NotComparableException();
+        if (hasNull())
+            throw new SortNullElementException();
 
         quicksort(this.arr, 0, size - 1, Optional.empty());
     }
 
     /**
      * Sorts the collection using a Comparator.
+     * Array have to be without null elements.
      *
      * @param comparator the comparator used for comparing collection elements.
-     * @throws NullParamException if the provided parameter is null.
+     * @throws NullParamException       if the provided parameter is null.
+     * @throws SortNullElementException if collection contains null elements.
      */
     public void sort(Comparator<T> comparator) {
         if (comparator == null)
             throw new NullParamException();
+        if (hasNull())
+            throw new SortNullElementException();
 
         quicksort(this.arr, 0, size - 1, Optional.of(comparator));
     }
@@ -224,8 +223,6 @@ public class SpecialArrayList<T> {
     public void replace(int index, T obj) {
         if (index < 0 || index >= size)
             throw new IndexOutOfRangeException(size, index);
-        if (obj == null)
-            throw new NullParamException();
 
         arr[index] = obj;
     }
@@ -235,7 +232,7 @@ public class SpecialArrayList<T> {
      *
      * @return the number of elements in the collection.
      */
-    public int getSize() {
+    public int size() {
         return this.size;
     }
 
@@ -246,14 +243,12 @@ public class SpecialArrayList<T> {
      * Adds all specified elements.
      * Expands the array as needed to accommodate both arrays.
      *
-     * @param arr the elements to be added.
+     * @param externalArr the elements to be added.
      * @throws NullParamException if the provided parameter is null.
      */
-    public void addAll(T[] arr) {
-        if (arr == null)
+    public void addAll(T[] externalArr) {
+        if (externalArr == null)
             throw new NullParamException();
-
-        T[] externalArr = prepareReceivingArray(arr);
 
         if (size + externalArr.length >= this.arr.length)
             expanseArray(size + externalArr.length);
@@ -285,17 +280,19 @@ public class SpecialArrayList<T> {
     /**
      * Returns a copy of the collection's array.
      *
-     * @param a the array into which the copy is to be placed.
+     * @param externalArr the array into which the copy is to be placed.
      * @return a copy of the collection's array.
      * @throws NullParamException if the provided parameter is null.
      */
-    public T[] toArray(T[] a) {
-        if (a == null)
+    public T[] toArray(T[] externalArr) {
+        if (externalArr == null)
             throw new NullParamException();
-        if (a.length < size)
-            return (T[]) Arrays.copyOf(arr, size, a.getClass());
-        System.arraycopy(arr, 0, a, 0, size);
-        return a;
+
+        if (externalArr.length < size)
+            return (T[]) Arrays.copyOf(arr, size, externalArr.getClass());
+
+        System.arraycopy(arr, 0, externalArr, 0, size);
+        return externalArr;
     }
 
     /**
@@ -305,6 +302,19 @@ public class SpecialArrayList<T> {
      */
     public boolean isEmpty() {
         return size == 0;
+    }
+
+    /**
+     * Check is collection contains null elements.
+     *
+     * @return true - if collection contains, false - if not.
+     */
+    public boolean hasNull() {
+        for (int i = 0; i < size; i++) {
+            if (arr[i] == null)
+                return true;
+        }
+        return false;
     }
 
     //private methods
@@ -332,13 +342,13 @@ public class SpecialArrayList<T> {
 
     }
 
-    private int partition(T[] arr, int lowest, int highest, Comparator<T> c) {
+    private int partition(T[] arr, int lowest, int highest, Comparator<T> comparator) {
         T pivot = arr[highest];
 
         int smallerSideEnd = lowest;
 
         for (int i = lowest; i < highest; i++) {
-            if (c.compare(pivot, arr[i]) >= 0) {
+            if (comparator.compare(pivot, arr[i]) >= 0) {
                 swap(i, smallerSideEnd++);
             }
         }
@@ -400,39 +410,6 @@ public class SpecialArrayList<T> {
             throw new CapacityException(capacity);
 
         return (T[]) new Object[capacity];
-    }
-
-    private T[] prepareReceivingArray(T[] arr) {
-        T[] solidArray = removeGaps(arr);
-        return trim(solidArray);
-    }
-
-    private T[] trim(T[] solidArr) {
-        int newSize = solidArr.length;
-        for (int i = solidArr.length - 1; i >= 0; i--)
-            if (solidArr[i] == null) {
-                newSize = i;
-            }
-
-        T[] newArr = createArr(newSize);
-        System.arraycopy(solidArr, 0, newArr, 0, newArr.length);
-
-        return newArr;
-    }
-
-    private T[] removeGaps(T[] arr) {
-        T[] newArr = createArr(arr.length);
-        System.arraycopy(arr, 0, newArr, 0, newArr.length);
-
-        int actuallySize = 0;
-        for (int i = 0; i < newArr.length; i++) {
-            if (newArr[i] != null) {
-                T temp = newArr[i];
-                newArr[i] = null;
-                newArr[actuallySize++] = temp;
-            }
-        }
-        return newArr;
     }
 
     /**
