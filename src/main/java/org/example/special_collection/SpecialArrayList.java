@@ -48,11 +48,9 @@ public class SpecialArrayList<T> {
      * is increased according to the specified coefficient.
      *
      * @param capacity             the size of the array to be created.
-     * @param expansionCoefficient the expansion coefficient. Must be greater than 1.0,
-     *                             but no greater than HIGHEST_EXPANSION_COEFFICIENT.
+     * @param expansionCoefficient the expansion coefficient. Must be greater than 1.0.
      * @throws CapacityException             if the specified size is less than zero.
-     * @throws ExpansionCoefficientException if the coefficient is less than (or equal to) 1.0
-     *                                       or greater than HIGHEST_EXPANSION_COEFFICIENT.
+     * @throws ExpansionCoefficientException if the coefficient is less than (or equal to) 1.0.
      */
     public SpecialArrayList(int capacity, Double expansionCoefficient) {
         if (capacity <= 0)
